@@ -1,0 +1,17 @@
+.serial_block {
+    border: 1px solid black;
+    min-height: 100px;
+    background-color: black;
+    
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+#progressBar {
+    margin-top: 1em;
+}
+
+.padder {
+    min-height: 700px;
+}

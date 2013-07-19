@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>JVVisualSerial</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Le styles -->
+        <link href="css/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css">
+	    <link href="css/style.css" media="screen" rel="stylesheet" type="text/css">
+		<link href="css/bootstrap-responsive.min.css" media="screen" rel="stylesheet" type="text/css">
+        <!-- Scripts -->
+        <script type="text/javascript" src="js/jquery.min.js"></script>
+		<script type="text/javascript" src="../src/jvvisualserial.js"></script>
+		<script type="text/javascript" src="js/bootstrap.min.js"></script>
+		<!--[if lt IE 9]><script type="text/javascript" src="js/html5.js"></script><![endif]-->
+		
+		<style>
+		.serial_block {
+			border: 1px solid black;
+			min-height: 100px;
+			background-color: black;
+
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+
+		#progressBar {
+			margin-top: 1em;
+		}
+		
+		#message {
+			width: 500px;
+		}
+
+		</style>
+		
+		<script>
+		/*
+		 Copyright 2013 Julian Fernando Vidal | https://github.com/poisa/JVVisualSerial
+
+		 Licensed under the Apache License, Version 2.0 (the "License");
+		 you may not use this file except in compliance with the License.
+		 You may obtain a copy of the License at
+
+		 http://www.apache.org/licenses/LICENSE-2.0
+
+		 Unless required by applicable law or agreed to in writing, software
+		 distributed under the License is distributed on an "AS IS" BASIS,
+		 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+		 See the License for the specific language governing permissions and
+		 limitations under the License.
+		 */
+		
+		$(document).ready(function() {
+
+			$progressBar = $("#progressBar");
+			
+			// Instanciate the visual serial class. Note that since we don't have any data yet,
+			// we pass an empty string
+			var blinkDelay = 100;
+			serial = new JVVisualSerial('serial_clock', 'serial_data', blinkDelay, '');
+
+			$("#btn_transmit").click(function(){
+				// Set binary data into our object
+				serial.setBinaryData($("#message").val());
+				
+				// Setup a couple of optional callbacks
+				onTickCallback = function(){
+					setProgressBar(serial.getPercentDone());
+				};
+				onEndTransmitionCallback = function() {
+					setProgressBar(0);
+					$("#btn_transmit").attr('disabled', false);
+					$("#btn_stop").attr('disabled', true);
+				};
+
+				$("#btn_transmit").attr('disabled', true);
+				$("#btn_stop").attr('disabled', false);
+
+				// Start the transmition
+				serial.beginTransmition(onTickCallback, onEndTransmitionCallback);
+			});
+			
+			// Start calibration
+			$("#btn_calibrate").click(function(){
+				$("#btn_transmit").attr('disabled', true);
+				$("#btn_stop").attr('disabled', true);
+				
+				// Pass an anonymous function that gets executed
+				// after calibration ends
+				serial.beginCalibration(function (){
+					$("#btn_transmit").attr('disabled', false);
+				});
+			});
+
+			// Manually stop transmition
+			$("#btn_stop").click(function(){
+				serial.stopTransmition();
+				$("#btn_transmit").attr('disabled', false);
+			}).attr('disabled', true);
+
+			setProgressBar(0);
+		});
+		
+		// Helper function to set the progressbar
+		function setProgressBar(percent)
+		{
+			if (percent > 0) {
+				$progressBar.addClass('active');
+			} else {
+				$progressBar.removeClass('active');
+			}
+			$progressBar.css('width', percent + '%');
+		}
+
+		</script>
+    </head>
+    <body>
+        
+        <div class="container">
+            
+
+			<div class="row">
+				<div class="span12">
+					<form>
+						<fieldset>
+							<label>Binary Data</label>
+							<input id="message" type="text" placeholder="Type binary data here" value="10101110000011100110100010011001010111101010101010"/>
+						</fieldset>
+					</form>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="span12">
+					<button id="btn_calibrate" class="btn btn-warning">Calibrate</button>
+					<button id="btn_transmit" class="btn btn-success">Transmit</button>
+					<button id="btn_stop"class="btn btn-danger">Stop</button>
+
+					<div id="progressBar" class="progress progress-success progress-striped">
+						<div class="bar" style="width: 100%"></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="span2">
+					<h2>Clock</h2>
+					<p class="serial_block serial_clock"></p>
+				</div>
+
+				<div class="span2">
+					<h2>Data</h2>
+					<p class="serial_block serial_data"></p>
+				</div>
+			</div>           
+			<hr>
+            <footer>
+                <p>&copy; 2013 Julian Vidal</p>
+            </footer>
+        </div> <!-- /container -->
+    </body>
+</html>
