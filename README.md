@@ -27,6 +27,7 @@ $(document).ready(function(){
     serial = new JVVisualSerial('serial_clock', 'serial_data', blinkDelay, '100001110');
     serial.beginTransmition();
 });
+```
 
 ## Examples
 
